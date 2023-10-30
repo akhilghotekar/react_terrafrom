@@ -1,0 +1,41 @@
+pipeline { 
+    agent any 
+    environment { 
+       registry = "045044665512.dkr.ecr.ap-south-1.amazonaws.com/dccproject"
+       AWS_DEFAULT_REGION    = 'ap-south-1'
+        
+    }
+    
+    stages { 
+       stage('Cloning Git') { 
+          steps { 
+              git credentialsId: 'code_commit', url: 'https://git-codecommit.ap-south-1.amazonaws.com/v1/repos/Application'  
+              sh 'pwd'
+          } 
+        } 
+    // Building Docker images 
+      stage('Deploy image') { 
+          steps{  
+          script { 
+            
+             sh 'version=$(cat ./files/version);sh ./files/deploy.sh $version'
+        } 
+      } 
+    }
+    stage ('Get Approve') {
+      steps{
+          input 'approve to apply'
+      }
+   }
+ stage ('Deploy') {
+   steps {
+       script{
+           sh 'aws eks update-kubeconfig --region ap-south-1 --name Trainee-Cluster'
+           
+           sh 'kubectl apply -f ./files/deployment.yaml'
+        //   sh 'kubectl apply -f ./files/service.yaml'
+       }
+   }
+  } 
+  }
+}

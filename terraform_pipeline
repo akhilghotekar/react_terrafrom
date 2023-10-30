@@ -1,0 +1,38 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_DEFAULT_REGION    = 'ap-south-1'
+    }
+    
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git credentialsId: 'code_commit', url: 'https://git-codecommit.ap-south-1.amazonaws.com/v1/repos/terraform'
+            }
+        }
+          
+    
+        stage('Teraaform Plan') {
+            steps {
+                sh 'terraform init'
+                sh 'terraform plan'
+            
+            }
+        }
+        stage ('Get Approve') {
+           steps{
+               input 'approve to apply'
+           }
+        }
+        stage('Apply') {
+            steps {
+                script {
+                   sh 'terraform apply --auto-approve'
+                }
+            }
+        }
+    }  
+}
+
