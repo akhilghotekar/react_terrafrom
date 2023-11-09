@@ -33,7 +33,7 @@ pipeline {
            sh 'aws eks update-kubeconfig --region ap-south-1 --name Trainee-Cluster'
            
            sh 'kubectl apply -f ./files/deployment.yaml'
-        //   sh 'kubectl apply -f ./files/service.yaml'
+        
        }
    }
   } 
